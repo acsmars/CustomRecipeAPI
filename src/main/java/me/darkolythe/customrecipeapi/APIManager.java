@@ -5,6 +5,8 @@ import org.bukkit.inventory.ShapedRecipe;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.bukkit.Bukkit.getLogger;
+
 public class APIManager {
 
     private static List<CustomRecipe> recipes = new ArrayList<>();
@@ -15,6 +17,7 @@ public class APIManager {
      * @param newRecipe CustomRecipe object to add
      */
     static void addRecipe(CustomRecipe newRecipe) {
+        getLogger().info("Adding recipe :" + newRecipe.toString());
         recipes.add(newRecipe);
     }
 
