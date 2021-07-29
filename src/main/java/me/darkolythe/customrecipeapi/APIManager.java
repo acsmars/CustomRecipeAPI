@@ -9,7 +9,7 @@ import static org.bukkit.Bukkit.getLogger;
 
 public class APIManager {
 
-    private static List<CustomRecipe> recipes = new ArrayList<>();
+    private static final List<CustomRecipe> recipes = new ArrayList<>();
     private static ShapedRecipe workbench;
 
     /**
@@ -29,7 +29,8 @@ public class APIManager {
         recipes.remove(newRecipe);
     }
 
-    static List<CustomRecipe> getRecipes() {
+    public static List<CustomRecipe> getRecipes() {
+        getLogger().info("getRecipes :" + recipes);
         return recipes;
     }
 
