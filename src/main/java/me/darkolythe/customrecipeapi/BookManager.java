@@ -12,18 +12,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static me.darkolythe.customrecipeapi.RecipeCreator.createShapelessItem;
-
 public class BookManager {
 
-    public static Inventory getRecipeBook(Player player, int page) {
+    private CustomRecipeAPI plugin;
+
+    BookManager(CustomRecipeAPI plugin) {
+        this.plugin = plugin;
+    }
+
+    public Inventory getRecipeBook(Player player, int page) {
         Inventory inv = Bukkit.createInventory(player, 54, LanguageManager.getValue("recipebook"));
 
         createBottomRow(inv, page);
 
         for (int i = 0; i < 45; i++) {
-            if ((page * 45) + i < APIManager.getRecipes().size()) {
-                inv.setItem(inv.firstEmpty(), createRecipe(APIManager.getRecipes().get((page * 45) + i), player));
+            if ((page * 45) + i < plugin.getAPIManager().getRecipes().size()) {
+                inv.setItem(inv.firstEmpty(), createRecipe(plugin.getAPIManager().getRecipes().get((page * 45) + i), player));
             } else {
                 break;
             }
@@ -31,7 +35,7 @@ public class BookManager {
         return inv;
     }
 
-    private static ItemStack createRecipe(CustomRecipe recipe, Player player) {
+    private ItemStack createRecipe(CustomRecipe recipe, Player player) {
         ItemStack item = recipe.getResult().clone();
         ItemMeta meta = item.getItemMeta();
 
@@ -56,8 +60,8 @@ public class BookManager {
         return item;
     }
 
-    public static void createBottomRow(Inventory inv, int page) {
-        if (APIManager.getRecipes().size() > (45 * (page + 1))) {
+    public void createBottomRow(Inventory inv, int page) {
+        if (plugin.getAPIManager().getRecipes().size() > (45 * (page + 1))) {
             ItemStack invstack = createArrow(LanguageManager.getValue("nextpage"), LanguageManager.getValue("Current Page"), page);
             inv.setItem(53, invstack);
         }
@@ -67,7 +71,7 @@ public class BookManager {
         }
     }
 
-    private static ItemStack createArrow(String name, String lore, int page) {
+    private ItemStack createArrow(String name, String lore, int page) {
         ItemStack invstack = new ItemStack(Material.ARROW, 1);
         ItemMeta invmeta = invstack.getItemMeta();
         invmeta.setDisplayName(ChatColor.YELLOW.toString() + ChatColor.BOLD.toString() + name);
@@ -77,7 +81,7 @@ public class BookManager {
         return invstack;
     }
 
-    static void openRecipe(Player player, ItemStack item) {
+    void openRecipe(Player player, ItemStack item) {
         CustomRecipe recipe = getRecipeFromItem(item);
         if (recipe != null) {
 
@@ -96,7 +100,7 @@ public class BookManager {
                 }
             }
 
-            inv.setItem(8, createShapelessItem(recipe.getShaped()));
+            inv.setItem(8, plugin.getRecipecreator().createShapelessItem(recipe.getShaped()));
 
             inv.setItem(44, createBackButton());
 
@@ -104,10 +108,10 @@ public class BookManager {
         }
     }
 
-    static CustomRecipe getRecipeFromItem(ItemStack item) {
+    CustomRecipe getRecipeFromItem(ItemStack item) {
         ItemMeta meta = item.getItemMeta();
         String id = meta.getLore().get(meta.getLore().size() - 1).replaceAll("^[^_]*:", "").replace(" ", "");
-        for (CustomRecipe recipe : APIManager.getRecipes()) {
+        for (CustomRecipe recipe : plugin.getAPIManager().getRecipes()) {
             if (recipe.getID().equals(id)) {
                 return recipe;
             }
@@ -115,7 +119,7 @@ public class BookManager {
         return null;
     }
 
-    static ItemStack createBackButton() {
+    ItemStack createBackButton() {
         ItemStack item = new ItemStack(Material.BARRIER);
         ItemMeta meta = item.getItemMeta();
 
@@ -125,7 +129,7 @@ public class BookManager {
         return item;
     }
 
-    static ItemStack createDeleteButton() {
+    ItemStack createDeleteButton() {
         ItemStack del = new ItemStack(Material.RED_TERRACOTTA);
         ItemMeta delmeta = del.getItemMeta();
         delmeta.setDisplayName(LanguageManager.getValue("deleterecipe"));
@@ -134,7 +138,7 @@ public class BookManager {
         return del;
     }
 
-    static void fillEmpty(Inventory inv) {
+    void fillEmpty(Inventory inv) {
         ItemStack empty = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         ItemMeta meta = empty.getItemMeta();
         meta.setDisplayName(LanguageManager.getValue("recipeview"));

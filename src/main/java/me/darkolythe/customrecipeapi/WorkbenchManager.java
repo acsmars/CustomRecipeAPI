@@ -21,15 +21,19 @@ import java.util.*;
 
 public class WorkbenchManager implements Listener {
 
-    private static CustomRecipeAPI main = CustomRecipeAPI.getInstance();
+    private final CustomRecipeAPI plugin;
 
-    static Inventory createWorkbenchCreator() {
+    WorkbenchManager(CustomRecipeAPI plugin) {
+        this.plugin = plugin;
+    }
+
+    Inventory createWorkbenchCreator() {
         Inventory inv = Bukkit.createInventory(null, InventoryType.DISPENSER, ChatColor.YELLOW.toString() + ChatColor.BOLD.toString() + "Workbench Recipe (close to update)");
         fillInventory(inv);
         return inv;
     }
 
-    static Inventory createWorkbenchViewer() {
+    Inventory createWorkbenchViewer() {
         Inventory inv = Bukkit.createInventory(null, InventoryType.DISPENSER, ChatColor.YELLOW.toString() + ChatColor.BOLD.toString() + "Workbench Recipe View");
         fillInventory(inv);
         return inv;
@@ -60,37 +64,37 @@ public class WorkbenchManager implements Listener {
 
             setRecipe(order, map);
 
-            CustomRecipeAPI.getConfigHandler().saveWorkbench();
+            plugin.getConfigHandler().saveWorkbench();
 
             event.getPlayer().sendMessage(CustomRecipeAPI.prefix + ChatColor.GREEN + "Custom Crafting table recipe updated.");
         }
     }
 
-    public static void setRecipe(List<Character> order, Map<Character, ItemStack> map) {
+    public void setRecipe(List<Character> order, Map<Character, ItemStack> map) {
         ItemStack workbenchItem = new ItemStack(Material.DISPENSER);
         ItemMeta meta = workbenchItem.getItemMeta();
         meta.setDisplayName(LanguageManager.getValue("workbenchtitle"));
         workbenchItem.setItemMeta(meta);
 
-        ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(main, "custom_workbench"), workbenchItem);
+        ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(plugin, "custom_workbench"), workbenchItem);
         recipe.shape("" + order.get(0) + order.get(1) + order.get(2), "" + order.get(3) + order.get(4) + order.get(5), "" + order.get(6) + order.get(7) + order.get(8));
         for (char chr : map.keySet()) {
             recipe.setIngredient(chr, map.get(chr).getType());
         }
 
-        if (APIManager.getWorkbench() != null) {
+        if (plugin.getAPIManager().getWorkbench() != null) {
             Iterator<Recipe> it = Bukkit.getServer().recipeIterator();
             Recipe r;
             while (it.hasNext()) {
                 r = it.next();
-                if (r != null && r.getResult().equals(APIManager.getWorkbench().getResult())) {
+                if (r != null && r.getResult().equals(plugin.getAPIManager().getWorkbench().getResult())) {
                     it.remove();
                 }
             }
         }
         Bukkit.getServer().addRecipe(recipe);
 
-        APIManager.setWorkBench(recipe);
+        plugin.getAPIManager().setWorkBench(recipe);
     }
 
     @EventHandler
@@ -103,11 +107,11 @@ public class WorkbenchManager implements Listener {
     @EventHandler
     private void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        player.discoverRecipe(new NamespacedKey(main, "custom_workbench"));
+        player.discoverRecipe(new NamespacedKey(plugin, "custom_workbench"));
     }
 
-    private static void fillInventory(Inventory inv) {
-        if (APIManager.getWorkbench() != null) {
+    private void fillInventory(Inventory inv) {
+        if (plugin.getAPIManager().getWorkbench() != null) {
             int index = 0;
             for (ItemStack item : recipeList()) {
                 inv.setItem(index, item);
@@ -116,10 +120,10 @@ public class WorkbenchManager implements Listener {
         }
     }
 
-    public static List<ItemStack> recipeList() {
+    public List<ItemStack> recipeList() {
         List<ItemStack> items = new ArrayList<>();
-        Map<Character, ItemStack> im = APIManager.getWorkbench().getIngredientMap();
-        for (String s : APIManager.getWorkbench().getShape()) {
+        Map<Character, ItemStack> im = plugin.getAPIManager().getWorkbench().getIngredientMap();
+        for (String s : plugin.getAPIManager().getWorkbench().getShape()) {
             for (Character c : s.toCharArray()) {
                 items.add(im.get(c));
             }

@@ -16,13 +16,15 @@ import static me.darkolythe.customrecipeapi.CustomRecipe.getClosestMatch;
 
 public class CraftItemTask extends BukkitRunnable {
 
+    private CustomRecipeAPI plugin;
     private Player player;
     private Inventory eventInventory;
     private CustomRecipe lastRecipe = null;
     private int delay = 20;
     private int counter = 0;
 
-    public CraftItemTask(Player newPlayer, Inventory newEventInventory) {
+    public CraftItemTask(CustomRecipeAPI plugin,  Player newPlayer, Inventory newEventInventory) {
+        this.plugin = plugin;
         player = newPlayer;
         eventInventory = newEventInventory;
     }
@@ -30,7 +32,7 @@ public class CraftItemTask extends BukkitRunnable {
     @Override
     public void run() {
         if (counter < delay) {
-            Bukkit.getScheduler().scheduleSyncDelayedTask(CustomRecipeAPI.getInstance(), new Runnable() {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                 @Override
                 public void run() {
                     counter++;
@@ -40,9 +42,9 @@ public class CraftItemTask extends BukkitRunnable {
             counter = 0;
             Inventory inv = player.getInventory();
             if (player.hasPermission("crapi.craft")) {
-                if (APIManager.getWorkbench() != null
-                        && APIManager.getWorkbench().getResult().hasItemMeta()
-                        && player.getOpenInventory().getTitle().equals(APIManager.getWorkbench().getResult().getItemMeta().getDisplayName())) {
+                if (plugin.getAPIManager().getWorkbench() != null
+                        && plugin.getAPIManager().getWorkbench().getResult().hasItemMeta()
+                        && player.getOpenInventory().getTitle().equals(plugin.getAPIManager().getWorkbench().getResult().getItemMeta().getDisplayName())) {
                     if (eventInventory.getType() == InventoryType.DISPENSER) {
                         if (lastRecipe != null) {
                             if (lastRecipe.checkRecipe(eventInventory)
@@ -55,7 +57,7 @@ public class CraftItemTask extends BukkitRunnable {
                                 delay = 20;
                             }
                         } else {
-                            for (CustomRecipe recipe : APIManager.getRecipes()) {
+                            for (CustomRecipe recipe : plugin.getAPIManager().getRecipes()) {
                                 if (recipe.checkRecipe(eventInventory)
                                         && (player.hasPermission("crapi.craft." + recipe.getPermission()) || player.hasPermission("crapi.craftall"))) {
                                     lastRecipe = recipe;

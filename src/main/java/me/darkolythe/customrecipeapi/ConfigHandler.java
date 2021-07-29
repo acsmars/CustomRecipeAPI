@@ -1,7 +1,6 @@
 package me.darkolythe.customrecipeapi;
 
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -13,12 +12,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static me.darkolythe.customrecipeapi.WorkbenchManager.recipeList;
-import static me.darkolythe.customrecipeapi.WorkbenchManager.setRecipe;
 
 public class ConfigHandler {
 
-    private CustomRecipeAPI plugin = CustomRecipeAPI.getInstance();
+    private final CustomRecipeAPI plugin;
+
+    ConfigHandler(CustomRecipeAPI plugin) {
+        this.plugin = plugin;
+    }
 
     private FileConfiguration recipeDataConfig;
     private File recipeData;
@@ -47,7 +48,7 @@ public class ConfigHandler {
             if (identifier instanceof List) {
                 List<?> temp = recipeDataConfig.getList("recipes");
                 for (Object o : temp) {
-                    CustomRecipeAPI.getManager().addRecipe((CustomRecipe) o);
+                    plugin.getAPIManager().addRecipe((CustomRecipe) o);
                 }
             } else {
                 for (String recipes : recipeDataConfig.getConfigurationSection("recipes").getKeys(false)) {
@@ -56,7 +57,7 @@ public class ConfigHandler {
                     CustomRecipe r = new CustomRecipe(result, recipe);
                     r.setForced(recipeDataConfig.getBoolean("recipes." + recipes + ".forced"));
                     r.setID(recipes);
-                    CustomRecipeAPI.getManager().addRecipe(r);
+                    plugin.getAPIManager().addRecipe(r);
                 }
             }
         }
@@ -65,8 +66,8 @@ public class ConfigHandler {
     public void saveWorkbench() {
         recipeDataConfig = YamlConfiguration.loadConfiguration(recipeData);
 
-        recipeDataConfig.set("workbench.result", APIManager.getWorkbench().getResult());
-        recipeDataConfig.set("workbench.recipe", recipeList());
+        recipeDataConfig.set("workbench.result", plugin.getAPIManager().getWorkbench().getResult());
+        recipeDataConfig.set("workbench.recipe", plugin.getWorkbenchmanager().recipeList());
         try {
             recipeDataConfig.save(recipeData);
         } catch (IOException e) {
@@ -76,7 +77,7 @@ public class ConfigHandler {
 
     public void loadWorkbench() {
         if (recipeDataConfig.contains("workbench")) {
-            ItemStack recipe[] = (recipeDataConfig.getList("workbench.recipe")).toArray(new ItemStack[9]);
+            ItemStack[] recipe = (recipeDataConfig.getList("workbench.recipe")).toArray(new ItemStack[9]);
 
             Map<Character, ItemStack> map = new HashMap<>();
             List<Character> order = new ArrayList<>();
@@ -93,7 +94,7 @@ public class ConfigHandler {
                     }
                 }
             }
-            setRecipe(order, map);
+            plugin.getWorkbenchmanager().setRecipe(order, map);
         }
     }
 
@@ -103,8 +104,8 @@ public class ConfigHandler {
         recipeDataConfig.set("recipes", null);
 
         List<CustomRecipe> customRecipes = new ArrayList<>();
-        for (CustomRecipe recipes : CustomRecipeAPI.getManager().getRecipes()) {
-            if (recipes.getFromPlugin() == false) {
+        for (CustomRecipe recipes : plugin.getAPIManager().getRecipes()) {
+            if (!recipes.getFromPlugin()) {
                 customRecipes.add(recipes);
             }
         }

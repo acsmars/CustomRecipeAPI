@@ -1,5 +1,6 @@
 package me.darkolythe.customrecipeapi;
 
+import lombok.Getter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -10,14 +11,19 @@ public final class CustomRecipeAPI extends JavaPlugin {
 
     public static String prefix = ChatColor.WHITE.toString() + ChatColor.BOLD.toString() + "[" + ChatColor.BLUE.toString() + "CRAPI" + ChatColor.WHITE.toString() + ChatColor.BOLD.toString() + "] ";
 
-    static CustomRecipeAPI plugin;
+    public CustomRecipeAPI plugin;
 
-    private static RecipeListener recipelistener;
-    private static BookListener booklistener;
-    private static RecipeCreator recipecreator;
-    private static APIManager apimanager;
-    private static WorkbenchManager workbenchmanager;
-    private static ConfigHandler confighandler;
+    private RecipeListener recipelistener;
+    private BookListener booklistener;
+    @Getter
+    private RecipeCreator recipecreator;
+    @Getter
+    private APIManager apimanager;
+    @Getter
+    private WorkbenchManager workbenchmanager;
+    private ConfigHandler confighandler;
+    @Getter
+    private BookManager bookManager;
 
     @Override
     public void onEnable() {
@@ -27,13 +33,14 @@ public final class CustomRecipeAPI extends JavaPlugin {
 
         ConfigurationSerialization.registerClass(CustomRecipe.class);
 
-        apimanager = new APIManager();
+        apimanager = new APIManager(this);
+        bookManager = new BookManager(this);
 
         recipelistener = new RecipeListener(this);
-        booklistener = new BookListener();
-        recipecreator = new RecipeCreator();
-        confighandler = new ConfigHandler();
-        workbenchmanager = new WorkbenchManager();
+        booklistener = new BookListener(this);
+        recipecreator = new RecipeCreator(this);
+        confighandler = new ConfigHandler(this);
+        workbenchmanager = new WorkbenchManager(this);
 
         confighandler.setup();
         getServer().getPluginManager().registerEvents(recipelistener, this);
@@ -41,7 +48,7 @@ public final class CustomRecipeAPI extends JavaPlugin {
         getServer().getPluginManager().registerEvents(recipecreator, this);
         getServer().getPluginManager().registerEvents(workbenchmanager, this);
 
-        getCommand("crapi").setExecutor(new CommandHandler());
+        getCommand("crapi").setExecutor(new CommandHandler(this));
 
         saveDefaultConfig();
 
@@ -59,11 +66,11 @@ public final class CustomRecipeAPI extends JavaPlugin {
         confighandler.saveWorkbench();
     }
 
-    public static APIManager getManager() {
+    public APIManager getAPIManager() {
         return apimanager;
     }
 
-    public static ConfigHandler getConfigHandler() {
+    public ConfigHandler getConfigHandler() {
         return confighandler;
     }
 
@@ -73,15 +80,11 @@ public final class CustomRecipeAPI extends JavaPlugin {
      * @param newResult the ItemStack to return when crafted.
      * @param newRecipe ItemStacks to use in recipe. max of 9. 10+ will be ignored.
      */
-    public static CustomRecipe createRecipe(ItemStack newResult, ItemStack... newRecipe) {
+    public CustomRecipe createRecipe(ItemStack newResult, ItemStack... newRecipe) {
         CustomRecipe newCustomRecipe = new CustomRecipe(newResult, newRecipe);
         newCustomRecipe.setFromPlugin(true);
 
-        APIManager.addRecipe(newCustomRecipe);
+        apimanager.addRecipe(newCustomRecipe);
         return newCustomRecipe;
-    }
-
-    static CustomRecipeAPI getInstance() {
-        return plugin;
     }
 }

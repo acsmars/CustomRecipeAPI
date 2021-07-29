@@ -16,11 +16,15 @@ import java.util.List;
 
 public class RecipeCreator implements Listener {
 
-    private CustomRecipeAPI main = CustomRecipeAPI.getInstance();
+    private final CustomRecipeAPI plugin;
 
-    static Inventory openCreator(Player player) {
+    RecipeCreator(CustomRecipeAPI plugin) {
+        this.plugin = plugin;
+    }
+
+    Inventory openCreator(Player player) {
         Inventory inv = Bukkit.createInventory(player, 45, LanguageManager.getValue("customrecipecreator"));
-        BookManager.fillEmpty(inv);
+        plugin.getBookManager().fillEmpty(inv);
         inv.setItem(11, null);
         inv.setItem(12, null);
         inv.setItem(13, null);
@@ -50,8 +54,8 @@ public class RecipeCreator implements Listener {
                     if (inv.getItem(24) != null && inv.getItem(24).getType() != Material.AIR) {
                         CustomRecipe recipe = createRecipeFromInventory(inv);
                         if (recipe != null) {
-                            CustomRecipeAPI.getManager().addRecipe(recipe);
-                            CustomRecipeAPI.getConfigHandler().saveRecipes();
+                            plugin.getAPIManager().addRecipe(recipe);
+                            plugin.getConfigHandler().saveRecipes();
                             event.getWhoClicked().closeInventory();
                             return;
                         }
@@ -64,12 +68,12 @@ public class RecipeCreator implements Listener {
         }
     }
 
-    static CustomRecipe createRecipeFromInventory(Inventory inv) {
+    CustomRecipe createRecipeFromInventory(Inventory inv) {
         CustomRecipe r = null;
         if (inv.getItem(24) != null && inv.getItem(24).getType() != Material.AIR) {
 
             boolean valid = false;
-            ItemStack recipe[] = new ItemStack[9];
+            ItemStack[] recipe = new ItemStack[9];
             for (int i = 0; i < 9; i++) {
                 ItemStack item = inv.getItem((i % 3) + 11 + (9 * (i / 3)));
                 if (item == null || item.getType() == Material.AIR) {
@@ -89,7 +93,7 @@ public class RecipeCreator implements Listener {
         return r;
     }
 
-    private static ItemStack createCreateItem() {
+    private ItemStack createCreateItem() {
         ItemStack create = new ItemStack(Material.GREEN_TERRACOTTA);
         ItemMeta meta = create.getItemMeta();
         meta.setDisplayName(LanguageManager.getValue("createrecipe"));
@@ -97,7 +101,7 @@ public class RecipeCreator implements Listener {
         return create;
     }
 
-    public static ItemStack createShapelessItem(boolean isShaped) {
+    public ItemStack createShapelessItem(boolean isShaped) {
         ItemStack shapeless = new ItemStack(Material.CRAFTING_TABLE);
         ItemMeta meta = shapeless.getItemMeta();
         meta.setDisplayName(LanguageManager.getValue("toggleshapeless"));
@@ -106,12 +110,9 @@ public class RecipeCreator implements Listener {
         return shapeless;
     }
 
-    private static boolean getCurrentShape(ItemStack item) {
+    private boolean getCurrentShape(ItemStack item) {
         ItemMeta meta = item.getItemMeta();
         List<String> lore = meta.getLore();
-        if (lore.get(1).contains("true")) {
-            return true;
-        }
-        return false;
+        return lore.get(1).contains("true");
     }
 }

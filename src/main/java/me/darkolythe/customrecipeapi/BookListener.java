@@ -9,10 +9,14 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
-import static me.darkolythe.customrecipeapi.BookManager.createBackButton;
-import static me.darkolythe.customrecipeapi.BookManager.createDeleteButton;
 
 public class BookListener implements Listener {
+
+    private CustomRecipeAPI plugin;
+
+    BookListener(CustomRecipeAPI plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler
     private void onBookClick(InventoryClickEvent event) {
@@ -28,19 +32,19 @@ public class BookListener implements Listener {
                                     .replace(ChatColor.GREEN.toString(), "")
                                     .replace(ChatColor.GRAY.toString(), "")
                                     .replaceAll("[^\\d]", ""));
-                            player.openInventory(BookManager.getRecipeBook(player, page + 1));
+                            player.openInventory(plugin.getBookManager().getRecipeBook(player, page + 1));
                         } else if (item.getItemMeta().getDisplayName().equals(LanguageManager.getValue("previouspage")) && item.getType() == Material.ARROW) {
                             int page = Integer.parseInt(item.getItemMeta().getLore().get(0)
                                     .replace(ChatColor.GREEN.toString(), "")
                                     .replace(ChatColor.GRAY.toString(), "")
                                     .replaceAll("[^\\d]", ""));
-                            player.openInventory(BookManager.getRecipeBook(player, page - 1));
+                            player.openInventory(plugin.getBookManager().getRecipeBook(player, page - 1));
                         } else {
                             if (!event.getClickedInventory().equals(player.getInventory())) {
                                 if (event.getClick() == ClickType.RIGHT && player.hasPermission("crapi.giveitem")) {
-                                    player.getInventory().addItem(BookManager.getRecipeFromItem(item).getResult());
+                                    player.getInventory().addItem(plugin.getBookManager().getRecipeFromItem(item).getResult());
                                 } else {
-                                    BookManager.openRecipe(player, item);
+                                    plugin.getBookManager().openRecipe(player, item);
                                 }
                             }
                         }
@@ -48,18 +52,18 @@ public class BookListener implements Listener {
                 } else if (event.getView().getTitle().equals(LanguageManager.getValue("customrecipeview"))) {
                     event.setCancelled(true);
                     ItemStack item = event.getCurrentItem();
-                    if (item != null && item.equals(createBackButton())) {
-                        player.openInventory(BookManager.getRecipeBook(player, 0));
-                    } else if (item != null && item.equals(createDeleteButton())) {
-                        CustomRecipe recipe = RecipeCreator.createRecipeFromInventory(event.getClickedInventory());
-                        for (CustomRecipe r : CustomRecipeAPI.getManager().getRecipes()) {
+                    if (item != null && item.equals(plugin.getBookManager().createBackButton())) {
+                        player.openInventory(plugin.getBookManager().getRecipeBook(player, 0));
+                    } else if (item != null && item.equals(plugin.getBookManager().createDeleteButton())) {
+                        CustomRecipe recipe = plugin.getRecipecreator().createRecipeFromInventory(event.getClickedInventory());
+                        for (CustomRecipe r : plugin.getAPIManager().getRecipes()) {
                             if (r.equals(recipe)) {
-                                CustomRecipeAPI.getManager().removeRecipe(r);
+                                plugin.getAPIManager().removeRecipe(r);
                                 break;
                             }
                         }
-                        CustomRecipeAPI.getConfigHandler().saveRecipes();
-                        player.openInventory(BookManager.getRecipeBook(player, 0));
+                        plugin.getConfigHandler().saveRecipes();
+                        player.openInventory(plugin.getBookManager().getRecipeBook(player, 0));
                     }
                 }
             }

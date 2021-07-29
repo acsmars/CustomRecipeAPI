@@ -15,9 +15,9 @@ public class RecipeListener implements Listener {
 
     Map<Player, BukkitTask> taskList = new HashMap<>();
 
-    private CustomRecipeAPI main;
+    private CustomRecipeAPI plugin;
     RecipeListener(CustomRecipeAPI plugin) {
-        main = plugin;
+        this.plugin = plugin;
     }
 
     @EventHandler
@@ -25,7 +25,7 @@ public class RecipeListener implements Listener {
         if (event.getPlayer() instanceof Player) {
             Player player = (Player) event.getPlayer();
 
-            BukkitTask id = new CraftItemTask(player, event.getInventory()).runTaskTimer(main, 1, 1);
+            BukkitTask id = new CraftItemTask(plugin, player, event.getInventory()).runTaskTimer(plugin, 1, 1);
             taskList.put(player, id);
         }
     }

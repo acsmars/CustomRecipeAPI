@@ -5,19 +5,22 @@ import org.bukkit.inventory.ShapedRecipe;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.bukkit.Bukkit.getLogger;
-
 public class APIManager {
 
-    private static final List<CustomRecipe> recipes = new ArrayList<>();
-    private static ShapedRecipe workbench;
+    private final CustomRecipeAPI plugin;
+
+    APIManager(CustomRecipeAPI plugin) {
+        this.plugin = plugin;
+    }
+
+    private final List<CustomRecipe> recipes = new ArrayList<>();
+    private ShapedRecipe workbench;
 
     /**
      * Add a recipe to the custom recipe list.
      * @param newRecipe CustomRecipe object to add
      */
-    static void addRecipe(CustomRecipe newRecipe) {
-        getLogger().info("Adding recipe :" + newRecipe.toString());
+    void addRecipe(CustomRecipe newRecipe) {
         recipes.add(newRecipe);
     }
 
@@ -25,12 +28,11 @@ public class APIManager {
      * Remove a recipe from the custom recipe list.
      * @param newRecipe CustomRecipe object to remove
      */
-    public static void removeRecipe(CustomRecipe newRecipe) {
+    public void removeRecipe(CustomRecipe newRecipe) {
         recipes.remove(newRecipe);
     }
 
-    public static List<CustomRecipe> getRecipes() {
-        getLogger().info("getRecipes :" + recipes);
+    public List<CustomRecipe> getRecipes() {
         return recipes;
     }
 
@@ -38,11 +40,11 @@ public class APIManager {
      * Sets the recipe and item for the workbench with the recipe.
      * @param newRecipe ShapedRecipe for workbench
      */
-    public static void setWorkBench(ShapedRecipe newRecipe) {
+    public void setWorkBench(ShapedRecipe newRecipe) {
         workbench = newRecipe;
     }
 
-    public static ShapedRecipe getWorkbench() {
+    public ShapedRecipe getWorkbench() {
         return workbench;
     }
 }
