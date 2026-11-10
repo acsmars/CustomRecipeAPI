@@ -34,9 +34,9 @@ public class ConfigHandler {
         if (!recipeData.exists()) {
             try {
                 recipeData.createNewFile();
-                System.out.println(CustomRecipeAPI.prefix + ChatColor.GREEN + "RecipeData.yml has been created");
+                plugin.getLogger().info("RecipeData.yml has been created");
             } catch (IOException e) {
-                System.out.println(CustomRecipeAPI.prefix + ChatColor.RED + "Could not create RecipeData.yml");
+                plugin.getLogger().warning("Could not create RecipeData.yml");
             }
         }
         recipeDataConfig = YamlConfiguration.loadConfiguration(recipeData);
@@ -71,7 +71,7 @@ public class ConfigHandler {
         try {
             recipeDataConfig.save(recipeData);
         } catch (IOException e) {
-            System.out.println(CustomRecipeAPI.prefix + ChatColor.RED + "Could not save workbench recipe");
+            plugin.getLogger().warning("Could not save workbench recipe");
         }
     }
 
@@ -114,7 +114,7 @@ public class ConfigHandler {
         try {
             recipeDataConfig.save(recipeData);
         } catch (IOException e) {
-            System.out.println(CustomRecipeAPI.prefix + ChatColor.RED + "Could not save recipes");
+            plugin.getLogger().warning("Could not save recipes");
         }
     }
 }

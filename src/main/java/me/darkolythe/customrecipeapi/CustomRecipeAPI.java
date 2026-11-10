@@ -57,7 +57,7 @@ public final class CustomRecipeAPI extends JavaPlugin {
 
         Metrics metrics = new Metrics(plugin);
 
-        System.out.println(prefix + ChatColor.GREEN + "CustomRecipeAPI enabled!");
+        getLogger().info("CustomRecipeAPI enabled!");
     }
 
     @Override
